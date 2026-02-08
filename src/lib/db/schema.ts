@@ -124,3 +124,16 @@ export const newsletters = pgTable(
     ),
   })
 );
+
+import { relations } from "drizzle-orm";
+
+export const newslettersRelations = relations(newsletters, ({ one }) => ({
+  publisher: one(publishers, {
+    fields: [newsletters.publisherId],
+    references: [publishers.id],
+  }),
+}));
+
+export const publishersRelations = relations(publishers, ({ many }) => ({
+  newsletters: many(newsletters),
+}));

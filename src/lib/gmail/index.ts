@@ -1,7 +1,8 @@
-import type { gmail_v1 } from "googleapis";
+
+import { gmail_v1 } from "googleapis";
 import { getGmailClient } from "./client";
 import { parseMessage } from "./parse";
-import type { RawNewsletter, FetchNewslettersInput } from "./types";
+import { RawNewsletter, FetchNewslettersInput } from "./types";
 
 export type { RawNewsletter, FetchNewslettersInput };
 
@@ -10,6 +11,7 @@ export type { RawNewsletter, FetchNewslettersInput };
 export const NEWSLETTER_SENDERS = [
   "nl@email.vestedfinance.com",
   "bytebytego@substack.com",
+  "news@alphasignal.ai",
 ];
 
 // ─── Build Gmail search query ────────────────────────────────
@@ -54,6 +56,7 @@ async function listMessageIds({
     });
 
     const messages = response.data.messages ?? [];
+    console.log("Fetched messages count:", messages.length);
     for (const msg of messages) {
       if (msg.id) ids.push(msg.id);
     }
@@ -74,14 +77,19 @@ async function fetchFullMessage({
 }: {
   gmail: gmail_v1.Gmail;
   messageId: string;
-}): Promise<RawNewsletter> {
-  const response = await gmail.users.messages.get({
-    userId: "me",
-    id: messageId,
-    format: "full",
-  });
+}): Promise<RawNewsletter | null> {
+  try {
+    const response = await gmail.users.messages.get({
+      userId: "me",
+      id: messageId,
+      format: "full",
+    });
 
-  return parseMessage({ message: response.data });
+    return parseMessage({ message: response.data });
+  } catch (error) {
+    console.error(`Failed to fetch message ${messageId}`, error);
+    return null;
+  }
 }
 
 // ─── Public API ──────────────────────────────────────────────
@@ -113,7 +121,10 @@ export async function fetchNewsletters({
     const results = await Promise.all(
       batch.map((messageId) => fetchFullMessage({ gmail, messageId }))
     );
-    newsletters.push(...results);
+    // Filter out nulls
+    for (const res of results) {
+      if (res) newsletters.push(res);
+    }
   }
 
   // Sort by date, newest first
