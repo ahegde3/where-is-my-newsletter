@@ -52,6 +52,7 @@ export const syncNewsletters = actionClient
                 }
             }
 
+
             // 3. Save to DB
             let publisherId: string;
             // Use sender email from parsed newsletter

@@ -2,7 +2,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { NewsletterState } from "../state";
 
 const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-flash-exp",
+    model: "gemini-2.5-flash-lite",
     maxOutputTokens: 50,
     temperature: 0.1,
     apiKey: process.env.GOOGLE_GEMINI_API_KEY || "",
