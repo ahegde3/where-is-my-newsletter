@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Where Is My Newsletter?
 
-## Getting Started
+A minimal MVP Next.js 14 app that authenticates with Google, fetches newsletter emails via the Gmail API, processes them with a LangGraph pipeline (clean/summarize/classify), and displays them in a dashboard.
 
-First, run the development server:
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Auth**: NextAuth.js v5 (Google Provider)
+- **Database**: Supabase Postgres with Drizzle ORM
+- **AI/LLM**: Google Gemini 2.0 Flash via `@langchain/google-genai`
+- **Orchestration**: LangGraph
+- **Styling**: Tailwind CSS + Shadcn UI
+
+## Prerequisites
+
+- Node.js 18+
+- Supabase project
+- Google Cloud Console project with Gmail API enabled
+
+## Setup
+
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd where-is-my-newsletter2
+    ```
+
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Variables**:
+    Copy `.env.local.example` to `.env.local` and fill in the values:
+    ```bash
+    cp .env.local.example .env.local
+    ```
+    - `DATABASE_URL`: Your Supabase connection string.
+    - `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`: From Google Cloud Console.
+    - `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`.
+    - `GOOGLE_GEMINI_API_KEY`: From Google AI Studio.
+    - `NEWSLETTER_SENDERS`: Comma-separated list of email addresses to fetch from.
+
+4.  **Database Migration**:
+    Push the schema to your Supabase database:
+    ```bash
+    npm run db:push
+    ```
+
+## Running the App
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1.  **Auth**: User signs in with Google. We request `gmail.readonly` scope.
+2.  **Sync**: User clicks "Sync".
+    - `src/actions/sync.ts` fetches emails from configured senders using Gmail API.
+    - It checks for duplicates in the DB.
+    - New emails are passed to the LangGraph pipeline (`src/lib/pipeline`).
+3.  **Pipeline**:
+    - **Clean Node**: Uses Cheerio to extract text and "View in Browser" link.
+    - **Summarize Node**: Uses Gemini Flash to generate a 50-word summary.
+    - **Classify Node**: Uses Gemini Flash to tag the newsletter (Tech, AI, etc.).
+4.  **Storage**: Processed newsletters are stored in `newsletters` table in Supabase.
+5.  **Dashboard**: Displays newsletters with summaries, tags, and links.
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

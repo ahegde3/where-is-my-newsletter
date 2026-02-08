@@ -157,12 +157,16 @@ export function parseMessage({
 }: {
   message: gmail_v1.Schema$Message;
 }): {
+  id: string;
   messageId: string;
-  sender: string;
-  senderName: string | null;
+  from: {
+    name: string | null;
+    email: string;
+  };
   subject: string;
   receivedAt: Date;
-  plainText: string;
+  htmlBody: string | null;
+  plainText: string | null;
   link: string | null;
 } {
   const from = getHeader({ payload: message.payload }, "From");
@@ -181,11 +185,15 @@ export function parseMessage({
   const link = extractViewInBrowserLink({ html });
 
   return {
+    id: message.id!,
     messageId: message.id!,
-    sender: email,
-    senderName: name,
+    from: {
+      name,
+      email,
+    },
     subject,
     receivedAt,
+    htmlBody: html,
     plainText,
     link,
   };

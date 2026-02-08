@@ -3,19 +3,22 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
-import { toast } from "sonner"
 
-export function SyncButton() {
+interface SyncButtonProps {
+  onSync?: () => Promise<void>
+}
+
+export function SyncButton({ onSync }: SyncButtonProps) {
   const [isSyncing, setIsSyncing] = useState(false)
 
-  function handleSync() {
+  async function handleSync() {
+    if (!onSync) return
     setIsSyncing(true)
-    setTimeout(() => {
+    try {
+      await onSync()
+    } finally {
       setIsSyncing(false)
-      toast.success("Synced 3 new newsletters", {
-        description: "Your inbox is up to date.",
-      })
-    }, 1500)
+    }
   }
 
   return (

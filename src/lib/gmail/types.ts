@@ -1,11 +1,15 @@
 // Raw parsed email from Gmail before LLM processing
 export interface RawNewsletter {
+  id: string;
   messageId: string;
-  sender: string;
-  senderName: string | null;
+  from: {
+    name: string | null;
+    email: string;
+  };
   subject: string;
   receivedAt: Date;
-  plainText: string;
+  htmlBody: string | null;
+  plainText: string | null;
   link: string | null;
 }
 

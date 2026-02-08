@@ -3,7 +3,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { MOCK_NEWSLETTERS } from "@/lib/mock-data"
 import { SignOutButton } from "@/components/auth-button"
 import { SyncButton } from "@/components/sync-button"
 import { TopicFilter } from "@/components/topic-filter"
@@ -14,23 +13,113 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Mail } from "lucide-react"
 import type { NewsletterWithPublisher, ReadFilter as ReadFilterType } from "@/types"
+import { getNewsletters } from "@/actions/newsletters"
+import { syncNewsletters } from "@/actions/sync"
+import { toast } from "sonner"
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [activeTopic, setActiveTopic] = useState<string | null>(null)
   const [readFilter, setReadFilter] = useState<ReadFilterType>("all")
-  const [newsletters, setNewsletters] = useState<NewsletterWithPublisher[]>(MOCK_NEWSLETTERS)
+  const [newsletters, setNewsletters] = useState<NewsletterWithPublisher[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch newsletters on mount and when topic changes
+  const fetchNewsletters = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      // Since our server action filters by topic, we could pass it here. 
+      // But for client-side filtering familiarity (and small data size MVP), let's fetch all 
+      // or fetch by topic if we want server-side filtering. 
+      // Let's do client-side filtering on the fetched set for "read/unread" 
+      // but maybe server-side for topic if data grows. 
+      // For MVP, let's fetch all relevant to the user for now to make "all topics" view fast.
+      // Wait, getNewsletters accepts a topic. Let's start with fetching all.
+      // Actually, let's just fetch all recent ones.
+      const data = await getNewsletters()
+
+      // Transform DB data to UI type
+      const transformed: NewsletterWithPublisher[] = data.map(n => ({
+        id: n.id,
+        publisher: {
+          id: n.publisher.id,
+          userId: n.publisher.userId,
+          name: n.publisher.name,
+          email: n.publisher.email,
+          createdAt: new Date(n.publisher.createdAt),
+        },
+        userId: n.userId,
+        publisherId: n.publisherId,
+        messageId: n.messageId,
+        subject: n.subject,
+        plainText: n.plainText,
+        summary: n.summary,
+        receivedAt: new Date(n.receivedAt),
+        processedAt: n.processedAt,
+        createdAt: n.createdAt,
+        isRead: n.isRead,
+        topics: n.topics || [],
+        link: n.link,
+      }))
+      setNewsletters(transformed)
+    } catch (error) {
+      console.error("Failed to fetch newsletters", error)
+      toast.error("Failed to load newsletters")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    if (status === "unauthenticated") router.replace("/")
-  }, [status, router])
+    if (status === "authenticated") {
+      fetchNewsletters()
+    } else if (status === "unauthenticated") {
+      router.replace("/")
+    }
+  }, [status, router, fetchNewsletters])
 
-  const handleToggleRead = useCallback((id: string) => {
+  const handleSync = async () => {
+    try {
+      const result = await syncNewsletters({})
+      if (result?.data) {
+        toast.success(`Synced ${result.data.synced} new newsletters`, {
+          id: "sync-toast" // dedupe
+        })
+        if (result.data.synced > 0) {
+          await fetchNewsletters()
+        }
+      } else if (result?.serverError) {
+        toast.error("Sync failed: " + result.serverError)
+      }
+    } catch (error) {
+      console.error("Sync error", error)
+      toast.error("Failed to sync newsletters")
+    }
+  }
+
+  const handleToggleRead = useCallback(async (id: string) => {
+    // Optimistic update
     setNewsletters((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: !n.isRead } : n))
     )
-  }, [])
+
+    // Find new status
+    const newsletter = newsletters.find(n => n.id === id);
+    if (!newsletter) return;
+    const newStatus = !newsletter.isRead;
+
+    try {
+      await import("@/actions/newsletters").then(mod => mod.toggleReadStatus(id, newStatus));
+    } catch (err) {
+      console.error("Failed to toggle read status", err);
+      toast.error("Failed to update status");
+      // Revert
+      setNewsletters((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: !n.isRead } : n))
+      )
+    }
+  }, [newsletters])
 
   const filteredNewsletters = useMemo(() => {
     return newsletters.filter((n) => {
@@ -52,7 +141,7 @@ export default function DashboardPage() {
     unread: newsletters.filter((n) => !n.isRead).length,
   }), [newsletters])
 
-  if (status === "loading") {
+  if (status === "loading" || (isLoading && newsletters.length === 0)) {
     return (
       <div className="min-h-screen bg-background">
         <header className="sticky top-0 z-10 border-b bg-background">
@@ -97,7 +186,7 @@ export default function DashboardPage() {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <SyncButton />
+            <SyncButton onSync={handleSync} />
             <Separator orientation="vertical" className="h-6" />
             <div className="flex items-center gap-2">
               <Avatar className="h-7 w-7">
