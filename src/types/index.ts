@@ -1,7 +1,7 @@
 export interface Newsletter {
   id: string;
   userId: string;
-  gmailMessageId: string;
+  messageId: string;
   sender: string;
   senderName: string | null;
   subject: string;
@@ -11,9 +11,12 @@ export interface Newsletter {
   viewInBrowserLink: string | null;
   summary: string | null;
   topics: string[];
+  isRead: boolean;
   processedAt: Date | null;
   createdAt: Date;
 }
+
+export type ReadFilter = "all" | "read" | "unread";
 
 export interface ActionResponse<T = unknown> {
   success: boolean;
