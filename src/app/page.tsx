@@ -1,20 +1,20 @@
 "use client"
 
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { useMockAuth } from "@/lib/mock-auth"
 import { SignInButton } from "@/components/auth-button"
 import { Mail, Sparkles, Tag } from "lucide-react"
 
 export default function LandingPage() {
-  const { user } = useMockAuth()
+  const { data: session, status } = useSession()
   const router = useRouter()
 
   useEffect(() => {
-    if (user) router.replace("/dashboard")
-  }, [user, router])
+    if (session) router.replace("/dashboard")
+  }, [session, router])
 
-  if (user) return null
+  if (status === "loading" || session) return null
 
   return (
     <div className="flex min-h-screen flex-col">

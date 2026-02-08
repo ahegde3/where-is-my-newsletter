@@ -1,22 +1,22 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { MockAuthProvider } from "@/lib/mock-auth"
+import { SessionProvider } from "next-auth/react"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <MockAuthProvider>
+    <SessionProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
         {children}
         <Toaster />
-      </MockAuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </SessionProvider>
   )
 }

@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useMockAuth } from "@/lib/mock-auth"
 import { MOCK_NEWSLETTERS } from "@/lib/mock-data"
 import { SignOutButton } from "@/components/auth-button"
 import { SyncButton } from "@/components/sync-button"
@@ -11,19 +11,20 @@ import { ReadFilter } from "@/components/read-filter"
 import { NewsletterList } from "@/components/newsletter-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Mail } from "lucide-react"
 import type { NewsletterWithPublisher, ReadFilter as ReadFilterType } from "@/types"
 
 export default function DashboardPage() {
-  const { user } = useMockAuth()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [activeTopic, setActiveTopic] = useState<string | null>(null)
   const [readFilter, setReadFilter] = useState<ReadFilterType>("all")
   const [newsletters, setNewsletters] = useState<NewsletterWithPublisher[]>(MOCK_NEWSLETTERS)
 
   useEffect(() => {
-    if (!user) router.replace("/")
-  }, [user, router])
+    if (status === "unauthenticated") router.replace("/")
+  }, [status, router])
 
   const handleToggleRead = useCallback((id: string) => {
     setNewsletters((prev) =>
@@ -51,7 +52,39 @@ export default function DashboardPage() {
     unread: newsletters.filter((n) => !n.isRead).length,
   }), [newsletters])
 
-  if (!user) return null
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-10 border-b bg-background">
+          <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+            <Skeleton className="h-6 w-48" />
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-8 w-20" />
+              <Skeleton className="h-7 w-7 rounded-full" />
+            </div>
+          </div>
+        </header>
+        <main className="mx-auto max-w-5xl px-4 py-6">
+          <Skeleton className="mb-2 h-8 w-40" />
+          <Skeleton className="mb-6 h-4 w-56" />
+          <div className="mb-6 flex gap-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-7 w-16 rounded-full" />
+            ))}
+          </div>
+          <div className="grid gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-40 w-full rounded-xl" />
+            ))}
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!session?.user) return null
+
+  const user = session.user
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,9 +101,9 @@ export default function DashboardPage() {
             <Separator orientation="vertical" className="h-6" />
             <div className="flex items-center gap-2">
               <Avatar className="h-7 w-7">
-                <AvatarImage src={user.image} alt={user.name} />
+                <AvatarImage src={user.image ?? ""} alt={user.name ?? ""} />
                 <AvatarFallback className="text-xs">
-                  {user.name
+                  {(user.name ?? "U")
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
