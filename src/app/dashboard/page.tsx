@@ -12,14 +12,14 @@ import { NewsletterList } from "@/components/newsletter-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Mail } from "lucide-react"
-import type { Newsletter, ReadFilter as ReadFilterType } from "@/types"
+import type { NewsletterWithPublisher, ReadFilter as ReadFilterType } from "@/types"
 
 export default function DashboardPage() {
   const { user } = useMockAuth()
   const router = useRouter()
   const [activeTopic, setActiveTopic] = useState<string | null>(null)
   const [readFilter, setReadFilter] = useState<ReadFilterType>("all")
-  const [newsletters, setNewsletters] = useState<Newsletter[]>(MOCK_NEWSLETTERS)
+  const [newsletters, setNewsletters] = useState<NewsletterWithPublisher[]>(MOCK_NEWSLETTERS)
 
   useEffect(() => {
     if (!user) router.replace("/")

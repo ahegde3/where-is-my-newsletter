@@ -1,9 +1,9 @@
-import type { Newsletter } from "@/types"
+import type { NewsletterWithPublisher } from "@/types"
 import { NewsletterCard } from "@/components/newsletter-card"
 import { Inbox } from "lucide-react"
 
 interface NewsletterListProps {
-  newsletters: Newsletter[]
+  newsletters: NewsletterWithPublisher[]
   onToggleRead: (id: string) => void
 }
 

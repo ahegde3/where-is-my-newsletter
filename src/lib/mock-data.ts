@@ -1,17 +1,77 @@
-import type { Newsletter } from "@/types";
+import type { Publisher, NewsletterWithPublisher } from "@/types";
 
-export const MOCK_NEWSLETTERS: Newsletter[] = [
+export const MOCK_PUBLISHERS: Publisher[] = [
+  {
+    id: "pub-1",
+    userId: "mock-user",
+    name: "TLDR",
+    email: "hello@tldr.tech",
+    createdAt: new Date("2026-01-01"),
+  },
+  {
+    id: "pub-2",
+    userId: "mock-user",
+    name: "Morning Brew",
+    email: "digest@morningbrew.com",
+    createdAt: new Date("2026-01-01"),
+  },
+  {
+    id: "pub-3",
+    userId: "mock-user",
+    name: "tl;dr sec",
+    email: "dan@tldrsec.com",
+    createdAt: new Date("2026-01-01"),
+  },
+  {
+    id: "pub-4",
+    userId: "mock-user",
+    name: "Dense Discovery",
+    email: "hello@densediscovery.com",
+    createdAt: new Date("2026-01-01"),
+  },
+  {
+    id: "pub-5",
+    userId: "mock-user",
+    name: "Product Hunt",
+    email: "team@producthunt.com",
+    createdAt: new Date("2026-01-01"),
+  },
+  {
+    id: "pub-6",
+    userId: "mock-user",
+    name: "Bitcoin Magazine",
+    email: "weekly@bitcoinmagazine.com",
+    createdAt: new Date("2026-01-01"),
+  },
+  {
+    id: "pub-7",
+    userId: "mock-user",
+    name: "ByteByteGo",
+    email: "hello@bytebytego.com",
+    createdAt: new Date("2026-01-01"),
+  },
+  {
+    id: "pub-8",
+    userId: "mock-user",
+    name: "The Pragmatic Engineer",
+    email: "newsletter@pragmaticengineer.com",
+    createdAt: new Date("2026-01-01"),
+  },
+];
+
+const pub = (id: string) => MOCK_PUBLISHERS.find((p) => p.id === id)!;
+
+export const MOCK_NEWSLETTERS: NewsletterWithPublisher[] = [
   {
     id: "1",
     userId: "mock-user",
+    publisherId: "pub-1",
+    publisher: pub("pub-1"),
     messageId: "msg-001",
-    sender: "hello@tldr.tech",
-    senderName: "TLDR",
     subject: "TLDR: OpenAI launches GPT-5, Apple Vision Pro sales slow down",
     receivedAt: new Date("2026-02-06T08:00:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://tldr.tech/issue/1234",
+    link: "https://tldr.tech/issue/1234",
     summary:
       "OpenAI announced GPT-5 with breakthrough reasoning capabilities. Apple Vision Pro sees declining quarterly sales after initial launch hype. Google releases Gemini 2.0 Flash for developers with generous free tier.",
     topics: ["ai", "tech"],
@@ -22,14 +82,13 @@ export const MOCK_NEWSLETTERS: Newsletter[] = [
   {
     id: "2",
     userId: "mock-user",
+    publisherId: "pub-2",
+    publisher: pub("pub-2"),
     messageId: "msg-002",
-    sender: "digest@morningbrew.com",
-    senderName: "Morning Brew",
     subject: "The Fed holds rates steady, crypto market rallies hard",
     receivedAt: new Date("2026-02-05T07:30:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://morningbrew.com/daily/issue/5678",
+    link: "https://morningbrew.com/daily/issue/5678",
     summary:
       "Federal Reserve keeps interest rates unchanged at 4.5%. Bitcoin surges past $120k on renewed institutional ETF inflows. Amazon reports record Q4 earnings, beating Wall Street expectations by 12%.",
     topics: ["finance", "business"],
@@ -40,14 +99,13 @@ export const MOCK_NEWSLETTERS: Newsletter[] = [
   {
     id: "3",
     userId: "mock-user",
+    publisherId: "pub-3",
+    publisher: pub("pub-3"),
     messageId: "msg-003",
-    sender: "dan@tldrsec.com",
-    senderName: "tl;dr sec",
     subject: "tl;dr sec #230: Zero-day exploits surge, new NIST framework",
     receivedAt: new Date("2026-02-04T10:00:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://tldrsec.com/issue/230",
+    link: "https://tldrsec.com/issue/230",
     summary:
       "Critical zero-day exploits targeting enterprise VPNs increased 40% in January. NIST releases updated cybersecurity framework v2.1. Major cloud providers announce shared threat intelligence alliance.",
     topics: ["security", "tech"],
@@ -58,14 +116,13 @@ export const MOCK_NEWSLETTERS: Newsletter[] = [
   {
     id: "4",
     userId: "mock-user",
+    publisherId: "pub-4",
+    publisher: pub("pub-4"),
     messageId: "msg-004",
-    sender: "hello@densediscovery.com",
-    senderName: "Dense Discovery",
     subject: "Dense Discovery #321: The state of design systems in 2026",
     receivedAt: new Date("2026-02-03T09:00:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://densediscovery.com/issues/321",
+    link: "https://densediscovery.com/issues/321",
     summary:
       "Design systems are evolving with AI-assisted component generation. New tools bridge the gap between Figma and code. Accessibility-first design becomes the default approach across major platforms.",
     topics: ["design", "tech"],
@@ -76,14 +133,13 @@ export const MOCK_NEWSLETTERS: Newsletter[] = [
   {
     id: "5",
     userId: "mock-user",
+    publisherId: "pub-5",
+    publisher: pub("pub-5"),
     messageId: "msg-005",
-    sender: "team@producthunt.com",
-    senderName: "Product Hunt",
     subject: "Product Hunt Daily: Top 5 launches this week",
     receivedAt: new Date("2026-02-02T14:00:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://producthunt.com/newsletter/feb-02",
+    link: "https://producthunt.com/newsletter/feb-02",
     summary:
       "This week's top launches include an AI code reviewer, a privacy-focused analytics tool, and a collaborative whiteboard for remote teams. Indie makers are shipping faster with new no-code platforms.",
     topics: ["tech", "productivity"],
@@ -94,14 +150,13 @@ export const MOCK_NEWSLETTERS: Newsletter[] = [
   {
     id: "6",
     userId: "mock-user",
+    publisherId: "pub-6",
+    publisher: pub("pub-6"),
     messageId: "msg-006",
-    sender: "weekly@bitcoinmagazine.com",
-    senderName: "Bitcoin Magazine",
     subject: "Weekly Digest: Institutional adoption accelerates",
     receivedAt: new Date("2026-02-01T12:00:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://bitcoinmagazine.com/weekly/feb-01",
+    link: "https://bitcoinmagazine.com/weekly/feb-01",
     summary:
       "Major pension funds allocate 2-5% to Bitcoin. Lightning Network processes record 1M daily transactions. El Salvador's Bitcoin bonds outperform traditional sovereign debt instruments significantly.",
     topics: ["crypto", "finance"],
@@ -112,14 +167,13 @@ export const MOCK_NEWSLETTERS: Newsletter[] = [
   {
     id: "7",
     userId: "mock-user",
+    publisherId: "pub-7",
+    publisher: pub("pub-7"),
     messageId: "msg-007",
-    sender: "hello@bytebytego.com",
-    senderName: "ByteByteGo",
     subject: "System Design: How Netflix handles 250M subscribers",
     receivedAt: new Date("2026-01-31T08:00:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://bytebytego.com/issue/42",
+    link: "https://bytebytego.com/issue/42",
     summary:
       "Deep dive into Netflix's microservices architecture handling 250M users globally. Key patterns include edge caching, adaptive bitrate streaming, and chaos engineering for resilience at massive scale.",
     topics: ["tech", "ai"],
@@ -130,14 +184,13 @@ export const MOCK_NEWSLETTERS: Newsletter[] = [
   {
     id: "8",
     userId: "mock-user",
+    publisherId: "pub-8",
+    publisher: pub("pub-8"),
     messageId: "msg-008",
-    sender: "newsletter@pragmaticengineer.com",
-    senderName: "The Pragmatic Engineer",
     subject: "What Silicon Valley layoffs mean for engineering culture",
     receivedAt: new Date("2026-01-30T09:00:00Z"),
-    htmlBody: null,
     plainText: null,
-    viewInBrowserLink: "https://pragmaticengineer.com/issue/188",
+    link: "https://pragmaticengineer.com/issue/188",
     summary:
       "Tech layoffs reshape engineering culture toward efficiency over growth-at-all-costs. Companies adopt smaller, senior-heavy teams. Remote work policies tighten but hybrid models persist across the industry.",
     topics: ["tech", "business"],

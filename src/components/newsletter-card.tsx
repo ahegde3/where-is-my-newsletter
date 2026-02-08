@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { TOPIC_COLORS, type Topic } from "@/lib/mock-data"
-import type { Newsletter } from "@/types"
+import type { NewsletterWithPublisher } from "@/types"
 
 interface NewsletterCardProps {
-  newsletter: Newsletter
+  newsletter: NewsletterWithPublisher
   onToggleRead: (id: string) => void
 }
 
@@ -36,9 +36,9 @@ export function NewsletterCard({ newsletter, onToggleRead }: NewsletterCardProps
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="h-3.5 w-3.5 shrink-0" />
               <span className="font-medium text-foreground">
-                {newsletter.senderName}
+                {newsletter.publisher.name}
               </span>
-              <span className="truncate">{newsletter.sender}</span>
+              <span className="truncate">{newsletter.publisher.email}</span>
             </div>
             <h3 className={cn(
               "mt-1.5 leading-snug",
@@ -75,10 +75,10 @@ export function NewsletterCard({ newsletter, onToggleRead }: NewsletterCardProps
               </Badge>
             ))}
           </div>
-          {newsletter.viewInBrowserLink && (
+          {newsletter.link && (
             <Button variant="ghost" size="sm" className="shrink-0 gap-1.5" asChild>
               <a
-                href={newsletter.viewInBrowserLink}
+                href={newsletter.link}
                 target="_blank"
                 rel="noopener noreferrer"
               >

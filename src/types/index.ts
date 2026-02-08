@@ -1,19 +1,29 @@
+export interface Publisher {
+  id: string;
+  userId: string;
+  name: string | null;
+  email: string;
+  createdAt: Date;
+}
+
 export interface Newsletter {
   id: string;
   userId: string;
+  publisherId: string;
   messageId: string;
-  sender: string;
-  senderName: string | null;
   subject: string;
   receivedAt: Date;
-  htmlBody: string | null;
   plainText: string | null;
-  viewInBrowserLink: string | null;
+  link: string | null;
   summary: string | null;
   topics: string[];
   isRead: boolean;
   processedAt: Date | null;
   createdAt: Date;
+}
+
+export interface NewsletterWithPublisher extends Newsletter {
+  publisher: Publisher;
 }
 
 export type ReadFilter = "all" | "read" | "unread";
