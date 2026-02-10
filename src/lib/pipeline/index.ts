@@ -4,6 +4,12 @@ import { NewsletterState } from "./state";
 import { cleanNode } from "./nodes/clean";
 import { summarizeNode } from "./nodes/summarize";
 import { classifyNode } from "./nodes/classify";
+import { extractLinkNode } from "./nodes/extractLink";
+
+// Conditional routing: extract link with LLM only if library-based extraction failed
+function shouldExtractLink(state: NewsletterState): string {
+    return state.viewInBrowserLink ? "summarize" : "extractLink";
+}
 
 // Define the graph
 const workflow = new StateGraph<NewsletterState>({
@@ -35,10 +41,15 @@ const workflow = new StateGraph<NewsletterState>({
     }
 })
     .addNode("clean", cleanNode)
+    .addNode("extractLink", extractLinkNode)
     .addNode("summarize", summarizeNode)
     .addNode("classify", classifyNode)
     .addEdge("__start__", "clean")
-    .addEdge("clean", "summarize")
+    .addConditionalEdges("clean", shouldExtractLink, {
+        "extractLink": "extractLink",
+        "summarize": "summarize"
+    })
+    .addEdge("extractLink", "summarize")
     .addEdge("summarize", "classify")
     .addEdge("classify", "__end__");
 

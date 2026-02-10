@@ -9,4 +9,16 @@ export const PROMPTS = {
   Newsletter Content:
   ${content}
   `,
+    EXTRACT_LINK: (html: string) => `Extract the main newsletter article link from this HTML email.
+
+Look for:
+1. "View in browser" / "Read online" / "Web version" links
+2. Main article/post links (e.g., Substack post URLs like "substack.com/p/...", blog post links)
+3. Primary content links (usually near the headline or top of the email)
+
+Return ONLY the full URL, nothing else. If no relevant link is found, return "NONE".
+
+HTML:
+${html}
+`,
 };
