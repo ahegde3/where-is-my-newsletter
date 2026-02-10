@@ -56,7 +56,7 @@ async function listMessageIds({
     });
 
     const messages = response.data.messages ?? [];
-    console.log("Fetched messages count:", messages.length);
+
     for (const msg of messages) {
       if (msg.id) ids.push(msg.id);
     }

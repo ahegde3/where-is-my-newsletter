@@ -1,5 +1,6 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { NewsletterState } from "../state";
+import { PROMPTS } from "../prompts";
 
 const model = new ChatGoogleGenerativeAI({
     model: "gemini-2.5-flash-lite",
@@ -12,11 +13,7 @@ export async function summarizeNode(state: NewsletterState): Promise<Partial<New
     const { cleanedText } = state;
     if (!cleanedText) return { summary: "No content to summarize." };
 
-    const prompt = `Summarize this newsletter in exactly 50 words or fewer. Be concise and informative.
-  
-  Newsletter Content:
-  ${cleanedText.slice(0, 10000)} // Truncate to avoid context limit issues, though Flash is huge.
-  `;
+    const prompt = PROMPTS.SUMMARIZE(cleanedText.slice(0, 10000));
 
     try {
         const response = await model.invoke(prompt);

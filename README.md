@@ -63,6 +63,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
     - It checks for duplicates in the DB.
     - New emails are passed to the LangGraph pipeline (`src/lib/pipeline`).
 3.  **Pipeline**:
+    - **Centralized Prompts**: `src/lib/pipeline/prompts.ts` contains all LLM prompts to ensure consistency and easy iteration.
     - **Clean Node**: Uses Cheerio to extract text and "View in Browser" link.
     - **Summarize Node**: Uses Gemini Flash to generate a 50-word summary.
     - **Classify Node**: Uses Gemini Flash to tag the newsletter (Tech, AI, etc.).
