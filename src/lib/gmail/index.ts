@@ -6,7 +6,7 @@ import { RawNewsletter, FetchNewslettersInput } from "./types";
 
 export type { RawNewsletter, FetchNewslettersInput };
 
-// ─── Hardcoded sender list (move to DB / env later) ──────────
+// ─── Hardcoded sender list (deprecated - use getNewsletterSenders from actions) ──────────
 
 export const NEWSLETTER_SENDERS = [
   "nl@email.vestedfinance.com",
@@ -96,15 +96,20 @@ async function fetchFullMessage({
 
 export async function fetchNewsletters({
   accessToken,
+  senders,
   afterDate,
   maxResults = 50,
 }: FetchNewslettersInput): Promise<RawNewsletter[]> {
   if (!accessToken) throw new Error("No access token provided");
+  if (!senders || senders.length === 0) {
+    console.warn("No senders provided. Returning empty array.");
+    return [];
+  }
 
   const gmail = getGmailClient({ accessToken });
 
   const query = buildQuery({
-    senders: NEWSLETTER_SENDERS,
+    senders,
     afterDate,
   });
 

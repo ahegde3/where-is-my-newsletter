@@ -15,6 +15,7 @@ export interface RawNewsletter {
 
 export interface FetchNewslettersInput {
   accessToken: string;
+  senders: string[];
   afterDate?: Date;
   maxResults?: number;
 }

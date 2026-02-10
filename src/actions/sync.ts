@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { fetchNewsletters } from "@/lib/gmail";
+import { getNewsletterSenders } from "./newsletters";
 
 // Helper to decode base64url (no longer needed in this file, but might be used if we needed raw access, removing for now if unused or keeping if needed. Actually fetchNewsletters returns parsed data, so we don't need decodeBase64 here anymore)
 
@@ -20,11 +21,20 @@ export const syncNewsletters = actionClient
             throw new Error("Unauthorized");
         }
 
-        // 1. Fetch messages using helper
+        // 1. Get newsletter senders from database
+        const senders = await getNewsletterSenders();
+
+        if (senders.length === 0) {
+            console.warn("No publishers found for user. Nothing to sync.");
+            return { synced: 0, total: 0 };
+        }
+
+        // 2. Fetch messages using helper
         let fetchedNewsletters;
         try {
             fetchedNewsletters = await fetchNewsletters({
                 accessToken: session.accessToken,
+                senders,
                 maxResults: 20,
             });
         } catch (error: any) {
@@ -53,7 +63,7 @@ export const syncNewsletters = actionClient
 
             if (existing) continue;
 
-            // 2. Run Pipeline
+            // 3. Run Pipeline
             let processed;
             try {
                 processed = await processNewsletter(newsletter.htmlBody || newsletter.plainText || "");
@@ -69,7 +79,7 @@ export const syncNewsletters = actionClient
             }
 
 
-            // 3. Save to DB
+            // 4. Save to DB
             let publisherId: string;
             // Use sender email from parsed newsletter
             const senderEmail = newsletter.from.email;
