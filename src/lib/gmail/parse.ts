@@ -95,6 +95,15 @@ const VIEW_IN_BROWSER_PATTERNS = [
   /open\s+in\s+browser/i,
   /browser\s+version/i,
   /web\s+version/i,
+  /view\s+in\s+your\s+browser/i,
+  /open\s+in\s+your\s+browser/i,
+  /click\s+here\s+to\s+view/i,
+  /view\s+on\s+web/i,
+  /read\s+in\s+browser/i,
+  /see\s+web\s+version/i,
+  /having\s+trouble\s+viewing/i,
+  /can'?t\s+see\s+this/i,
+  /view\s+as\s+web\s*page/i,
 ];
 
 export function extractViewInBrowserLink({
@@ -106,22 +115,60 @@ export function extractViewInBrowserLink({
 
   const $ = cheerio.load(html);
   let found: string | null = null;
+  let fallbackLink: string | null = null;
 
+  console.log(`[DEBUG] Searching for view-in-browser link in HTML...`);
+  let linkCount = 0;
+
+  // Strategy 1: Look for explicit "view in browser" links
   $("a").each((_, el) => {
     if (found) return false; // stop once found
-    const text = $(el).text().trim();
-    const href = $(el).attr("href");
-    if (!href || href.startsWith("mailto:")) return;
+    linkCount++;
 
+    const href = $(el).attr("href");
+    if (!href || href.startsWith("mailto:") || href === "#") return;
+
+    // Get text content (handles nested elements)
+    const text = $(el).text().trim();
+
+    // Also check aria-label and title attributes
+    const ariaLabel = $(el).attr("aria-label")?.trim() || "";
+    const title = $(el).attr("title")?.trim() || "";
+
+    // Combine all text sources for matching
+    const allText = [text, ariaLabel, title].filter(Boolean).join(" ");
+
+    // Log first few links for debugging
+    if (linkCount <= 5) {
+      console.log(`[DEBUG] Link ${linkCount}: text="${text.substring(0, 50)}", aria="${ariaLabel}", title="${title}", href="${href.substring(0, 60)}"`);
+    }
+
+    // Check for explicit "view in browser" patterns
     for (const pattern of VIEW_IN_BROWSER_PATTERNS) {
-      if (pattern.test(text)) {
+      if (pattern.test(allText)) {
+        console.log(`[DEBUG] ✓ Found match! Pattern: ${pattern}, Text: "${allText.substring(0, 50)}", Link: ${href}`);
         found = href;
         return false;
       }
     }
+
+    // Strategy 2: Collect fallback - the main article/content link
+    if (!fallbackLink) {
+      const isSubstackPost = href.includes("substack.com/app-link/post") || href.includes("substack.com/p/");
+      const isAlphaSignal = href.includes("alphasignal.ai/c?");
+      const isVestedArticle = text.toLowerCase().includes("read") && text.toLowerCase().includes("detail");
+      const looksLikeHeadline = text.length > 20 && !text.toLowerCase().match(/^(subscribe|signup|follow|unsubscribe|view|click here|join)/);
+
+      if (isSubstackPost || isAlphaSignal || isVestedArticle || looksLikeHeadline) {
+        fallbackLink = href;
+        console.log(`[DEBUG] Potential fallback link: text="${text.substring(0, 50)}", href="${href.substring(0, 60)}"`);
+      }
+    }
   });
 
-  return found;
+  console.log(`[DEBUG] Total links checked: ${linkCount}, Found: ${found ? "YES" : fallbackLink ? "FALLBACK" : "NO"}`);
+
+  return found || fallbackLink;
 }
 
 export function stripHtmlToPlainText({

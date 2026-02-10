@@ -21,10 +21,26 @@ export const syncNewsletters = actionClient
         }
 
         // 1. Fetch messages using helper
-        const fetchedNewsletters = await fetchNewsletters({
-            accessToken: session.accessToken,
-            maxResults: 20,
-        });
+        let fetchedNewsletters;
+        try {
+            fetchedNewsletters = await fetchNewsletters({
+                accessToken: session.accessToken,
+                maxResults: 20,
+            });
+        } catch (error: any) {
+            // Check if it's a scope/permission error
+            if (
+                error?.message?.includes('insufficient authentication scopes') ||
+                error?.code === 403 ||
+                error?.errors?.[0]?.reason === 'insufficientPermissions'
+            ) {
+                throw new Error(
+                    'Gmail access not authorized. Please sign out and sign back in to grant Gmail permissions.'
+                );
+            }
+            // Re-throw other errors
+            throw error;
+        }
         console.log("Fetched newsletters count:", fetchedNewsletters.length);
         let syncedCount = 0;
 
