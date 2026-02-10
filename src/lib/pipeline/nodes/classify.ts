@@ -1,5 +1,6 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { NewsletterState } from "../state";
+import { PROMPTS } from "../prompts";
 
 const model = new ChatGoogleGenerativeAI({
     model: "gemini-2.5-flash-lite",
@@ -14,11 +15,7 @@ export async function classifyNode(state: NewsletterState): Promise<Partial<News
 
     if (!textToClassify) return { topics: [] };
 
-    const prompt = `Classify this newsletter into 1–3 topic tags from: [tech, business, finance, ai, design, productivity, crypto]. Return only comma-separated tags.
-  
-  Content:
-  ${textToClassify}
-  `;
+    const prompt = PROMPTS.CLASSIFY(textToClassify);
 
     try {
         const response = await model.invoke(prompt);
