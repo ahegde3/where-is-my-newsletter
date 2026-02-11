@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { SignOutButton } from "@/components/auth-button"
 import { SyncButton } from "@/components/sync-button"
+import { NavTabs } from "@/components/nav-tabs"
 import { TopicFilter } from "@/components/topic-filter"
 import { ReadFilter } from "@/components/read-filter"
 import { NewsletterList } from "@/components/newsletter-list"
@@ -179,11 +180,14 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-primary" />
-            <span className="text-lg font-bold tracking-tight">
-              Where Is My Newsletter
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-primary" />
+              <span className="text-lg font-bold tracking-tight">
+                Where Is My Newsletter
+              </span>
+            </div>
+            <NavTabs />
           </div>
           <div className="flex items-center gap-3">
             <SyncButton onSync={handleSync} />
