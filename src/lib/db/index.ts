@@ -4,6 +4,10 @@ import * as schema from "./schema";
 
 const connectionString = process.env.DATABASE_URL!;
 
-const client = postgres(connectionString);
+// Configure for serverless environments (Vercel)
+const client = postgres(connectionString, {
+    prepare: false, // Required for Supabase connection pooler
+    max: 1, // Limit connections in serverless
+});
 
 export const db = drizzle(client, { schema });
