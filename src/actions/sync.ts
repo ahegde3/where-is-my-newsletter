@@ -66,7 +66,11 @@ export const syncNewsletters = actionClient
             // 3. Run Pipeline
             let processed;
             try {
-                processed = await processNewsletter(newsletter.htmlBody || newsletter.plainText || "");
+                // Pass the link already extracted by parse.ts
+                processed = await processNewsletter(
+                    newsletter.htmlBody || newsletter.plainText || "",
+                    newsletter.link || undefined
+                );
             } catch (err) {
                 console.error(`Pipeline failed for msg ${newsletter.id}`, err);
                 processed = {
@@ -74,7 +78,7 @@ export const syncNewsletters = actionClient
                     cleanedText: newsletter.plainText || "",
                     summary: "Processing failed.",
                     topics: [],
-                    viewInBrowserLink: undefined,
+                    viewInBrowserLink: newsletter.link || undefined,
                 }
             }
 

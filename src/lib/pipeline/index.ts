@@ -58,10 +58,18 @@ export const graph = workflow.compile();
 
 /**
  * Process a single newsletter HTML body through the pipeline.
+ * @param htmlBody - The HTML content of the newsletter
+ * @param viewInBrowserLink - Optional pre-extracted link from library-based extraction
  */
-export async function processNewsletter(htmlBody: string) {
+export async function processNewsletter(
+    htmlBody: string,
+    viewInBrowserLink?: string
+) {
     try {
-        const result = await graph.invoke({ htmlBody });
+        const result = await graph.invoke({
+            htmlBody,
+            viewInBrowserLink
+        });
         return result;
     } catch (error) {
         console.error("Pipeline execution error:", error);
