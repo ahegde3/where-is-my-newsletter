@@ -1,4 +1,4 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { NewsletterState } from "../state";
 import { PROMPTS } from "../prompts";
 

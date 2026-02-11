@@ -20,22 +20,26 @@ A minimal MVP Next.js 14 app that authenticates with Google, fetches newsletter 
 ## Setup
 
 1.  **Clone the repository**:
+
     ```bash
     git clone <repo-url>
     cd where-is-my-newsletter2
     ```
 
 2.  **Install dependencies**:
+
     ```bash
     npm install
     ```
 
 3.  **Environment Variables**:
     Copy `.env.local.example` to `.env.local` and fill in the values:
+
     ```bash
     cp .env.local.example .env.local
     ```
-    - `DATABASE_URL`: Your Supabase connection string.
+
+    - `DATABASE_URL`: Use Supabase **Connection pooling** URI (port `6543`) for serverless deployments (e.g. Vercel), with `sslmode=require`.
     - `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`: From Google Cloud Console.
     - `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`.
     - `GOOGLE_GEMINI_API_KEY`: From Google AI Studio.
