@@ -20,8 +20,8 @@ export async function GET() {
 
         return Response.json({
             success: true,
-            connection: result.rows[0],
-            tables: tables.rows,
+            connection: Array.isArray(result) ? result[0] : result,
+            tables: Array.isArray(tables) ? tables : [],
             counts: {
                 users: userCount.length,
                 accounts: accountCount.length,
