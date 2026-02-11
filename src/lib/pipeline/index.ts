@@ -1,5 +1,5 @@
 
-import { StateGraph, END } from "@langchain/langgraph";
+import { StateGraph } from "@langchain/langgraph";
 import { NewsletterState } from "./state";
 import { cleanNode } from "./nodes/clean";
 import { summarizeNode } from "./nodes/summarize";

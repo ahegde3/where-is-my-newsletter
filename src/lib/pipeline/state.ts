@@ -1,4 +1,4 @@
-import { BaseMessage } from "@langchain/core/messages";
+
 
 export interface NewsletterState {
     // Input

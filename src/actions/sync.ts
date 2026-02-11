@@ -37,12 +37,13 @@ export const syncNewsletters = actionClient
                 senders,
                 maxResults: 20,
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { message?: string; code?: number; errors?: [{ reason: string }] };
             // Check if it's a scope/permission error
             if (
-                error?.message?.includes('insufficient authentication scopes') ||
-                error?.code === 403 ||
-                error?.errors?.[0]?.reason === 'insufficientPermissions'
+                err?.message?.includes('insufficient authentication scopes') ||
+                err?.code === 403 ||
+                err?.errors?.[0]?.reason === 'insufficientPermissions'
             ) {
                 throw new Error(
                     'Gmail access not authorized. Please sign out and sign back in to grant Gmail permissions.'
@@ -108,8 +109,9 @@ export const syncNewsletters = actionClient
                 publisherId = newPub.id;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await db.insert(newsletters).values({
-                userId: session.user!.id! as string,
+                userId: session.user.id,
                 publisherId,
                 messageId: newsletter.id,
                 subject: newsletter.subject,
@@ -119,6 +121,7 @@ export const syncNewsletters = actionClient
                 summary: processed?.summary,
                 topics: (processed?.topics as string[]) || [],
                 processedAt: new Date(),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any);
 
             syncedCount++;
