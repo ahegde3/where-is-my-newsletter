@@ -27,11 +27,11 @@ export async function GET() {
                 accounts: accountCount.length,
             }
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         return Response.json({
             success: false,
-            error: error.message,
-            stack: error.stack,
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
         }, { status: 500 });
     }
 }
