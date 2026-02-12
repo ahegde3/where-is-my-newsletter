@@ -1,15 +1,15 @@
 export const PROMPTS = {
-    CLASSIFY: (content: string) => `Classify this newsletter into 1–3 topic tags from: [tech, business, finance, ai, design,"Software Development", productivity, crypto]. Return only comma-separated tags.
+  CLASSIFY: (content: string) => `Classify this newsletter into 1–3 topic tags from: [Tech, Business, Finance, AI, Design, Software Development , Productivity, Crypto]. Return only comma-separated tags.
   
   Content:
   ${content}
   `,
-    SUMMARIZE: (content: string) => `Summarize this newsletter in exactly 50 words or fewer. Be concise and informative.
+  SUMMARIZE: (content: string) => `Summarize this newsletter in exactly 50 words or fewer. Be concise and informative.
   
   Newsletter Content:
   ${content}
   `,
-    EXTRACT_LINK: (html: string) => `You are extracting a link from an HTML email. You must ONLY return links that actually exist in the HTML provided.
+  EXTRACT_LINK: (html: string) => `You are extracting a link from an HTML email. You must ONLY return links that actually exist in the HTML provided.
 
 **CRITICAL: DO NOT make up, invent, or hallucinate URLs. If you cannot find a real link in the HTML, return "NONE".**
 
